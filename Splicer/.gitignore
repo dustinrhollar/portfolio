@@ -1,0 +1,4 @@
+build/*
+ext/build/*
+project.4coder
+.vscode/

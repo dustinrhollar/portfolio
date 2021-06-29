@@ -15,7 +15,7 @@ file_global Mode g_rt_mode = Mode::OnlineAsyncJob;
 //#define TEXTURE_HEIGHT 360
 #define TEXTURE_WIDTH  1920
 #define TEXTURE_HEIGHT 1080
-#define WINDOW_NAME           "Maple Heightmap"
+#define WINDOW_NAME           "Maple Raytracer"
 #define MAPLE_STARTUP_FILE    "maple.startup"
 
 file_global bool g_app_is_running = false;
@@ -194,8 +194,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     
     srand(NULL);
     
-    u32 samples = 2;
-    u32 depth = 5;
+    u32 samples = 100;
+    u32 depth = 50;
     
     RtRenderer rt_renderer;
     rt_renderer_init(&rt_renderer, TEXTURE_WIDTH, TEXTURE_HEIGHT);

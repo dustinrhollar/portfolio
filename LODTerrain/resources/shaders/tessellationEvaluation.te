@@ -1,0 +1,84 @@
+#version 400 core
+
+layout(quads, equal_spacing, cw) in;
+
+in vec3 tcPosition[];
+out vec3 tePosition;
+out vec4 tePatchDistance;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
+
+uniform mat4 B;
+uniform mat4 BT;
+
+out TES_OUT
+{
+    vec3 N;
+} tes_out;
+
+const float epsilon = 0.001;
+
+void main()
+{
+    // interpolate in horizontal direction between vert. 0 and 3
+    float u = gl_TessCoord.x, v = gl_TessCoord.y;
+
+    mat4 Px = mat4(
+        tcPosition[0].x, tcPosition[1].x, tcPosition[2].x, tcPosition[3].x,
+        tcPosition[4].x, tcPosition[5].x, tcPosition[6].x, tcPosition[7].x,
+        tcPosition[8].x, tcPosition[9].x, tcPosition[10].x, tcPosition[11].x,
+        tcPosition[12].x, tcPosition[13].x, tcPosition[14].x, tcPosition[15].x );
+
+    // Do a lookup into the heightmap 
+    mat4 Py = mat4(
+        tcPosition[0].y, tcPosition[1].y, tcPosition[2].y, tcPosition[3].y,
+        tcPosition[4].y, tcPosition[5].y, tcPosition[6].y, tcPosition[7].y,
+        tcPosition[8].y, tcPosition[9].y, tcPosition[10].y, tcPosition[11].y,
+        tcPosition[12].y, tcPosition[13].y, tcPosition[14].y, tcPosition[15].y );
+
+    mat4 Pz = mat4(
+        tcPosition[0].z, tcPosition[1].z, tcPosition[2].z, tcPosition[3].z,
+        tcPosition[4].z, tcPosition[5].z, tcPosition[6].z, tcPosition[7].z,
+        tcPosition[8].z, tcPosition[9].z, tcPosition[10].z, tcPosition[11].z,
+        tcPosition[12].z, tcPosition[13].z, tcPosition[14].z, tcPosition[15].z );
+
+    mat4 cx = B * Px * BT;
+    mat4 cy = B * Py * BT;
+    mat4 cz = B * Pz * BT;
+
+    vec4 U = vec4(u*u*u, u*u, u, 1);
+    vec4 V = vec4(v*v*v, v*v, v, 1);
+
+    float x = dot(cx * V, U);
+    float y = dot(cy * V, U);
+    float z = dot(cz * V, U);
+    tePosition =  vec3(x, y, z);
+	
+	// NORMALS
+	vec2 epsilon_C_1 = gl_TessCoord.xy + vec2(0.0, epsilon);
+	vec2 epsilon_C_2 = gl_TessCoord.xy + vec2(epsilon, 0.0);
+	
+	u = epsilon_C_1.x;
+	v = epsilon_C_1.y;
+	vec4 e1_U = vec4(u*u*u, u*u, u, 1);
+	vec4 e1_V = vec4(v*v*v, v*v, v, 1);
+	
+	u = epsilon_C_2.x;
+	v = epsilon_C_2.y;
+	vec4 e2_U = vec4(u*u*u, u*u, u, 1);
+	vec4 e2_V = vec4(v*v*v, v*v, v, 1);
+	
+	vec3 p2 = vec3( dot(cx * e1_V, e1_U), dot(cy * e1_V, e1_U), dot(cz * e1_V, e1_U) );
+	vec3 p3 = vec3( dot(cx * e2_V, e2_U), dot(cy * e2_V, e2_U), dot(cz * e2_V, e2_U) );
+	
+	vec3 v1 = normalize(p2.xyz - tePosition.xyz);
+    vec3 v2 = normalize(p3.xyz - tePosition.xyz);
+
+    tes_out.N = normalize( cross(v1, v2) );
+
+    tePatchDistance = vec4(u, v, 1-u, 1-v);
+    gl_Position = projection * view * vec4(tePosition, 1);
+    //
+}

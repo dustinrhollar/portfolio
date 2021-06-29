@@ -1,0 +1,113 @@
+#version 400 core
+
+layout(vertices = 16) out;
+
+in vec3 vPosition[];
+out vec3 tcPosition[];
+
+uniform vec3 camera;
+
+uniform mat4 view;
+uniform mat4 projection;
+
+uniform float MinDistance;
+uniform float MaxDistance;
+
+#define ID gl_InvocationID
+#define M_PI 3.14159265359
+//#define CUSTOM_TESSELLATION
+// if defined, use the camera position for distance tessellation
+#define CAMERA
+//#define SIMPLE_BLEND
+
+float GetTessLevel(float Distance0, float Distance1)
+{
+    float AvgDistance = (Distance0 + Distance1) / 2.0;
+	
+	float MinTess = 1.0f;
+	float MaxTess = 64.0f;
+	
+	float depth = AvgDistance / ( MaxDistance - MinDistance );
+#ifdef SIMPLE_BLEND
+	return clamp( mix( MaxTess, MinTess, depth ), MinTess, MaxTess );
+#else
+	
+	vec2 LOD5 = vec2( 1.0, 10.0 );
+	vec2 LOD4 = vec2( 10.0, 25.0 );
+	vec2 LOD3 = vec2( 25.0, 45.0 );
+	vec2 LOD2 = vec2( 45.0, 60.0 );
+	vec2 LOD1 = vec2( 60.0, 64.0 );
+	
+	float d_lod5 = 0.01 * ( MaxDistance - MinDistance );
+	float d_lod4 = 0.08 * ( MaxDistance - MinDistance );
+	float d_lod3 = 0.20 * ( MaxDistance - MinDistance );
+	float d_lod2 = 0.40 * ( MaxDistance - MinDistance );
+	//float d_lod1 = 1.0 * ( MaxDistance - MinDistance );
+
+	//
+	// 5 LOD 
+	// LOD1 10% of max distance
+	// LOD2 10% ... 25% 
+	// LOD3 25% ... 50%
+	// LOD4 50% ... 70%
+	// LOD5 anything greater
+	if ( AvgDistance <= d_lod5 ) {
+        return clamp( mix( LOD1[1], LOD1[0], depth ), LOD1[0], LOD1[1] );
+    }
+	else if ( AvgDistance <= d_lod4 ) {
+        return clamp( mix( LOD2[1], LOD2[0], depth ), LOD2[0], LOD2[1] );
+    }
+    else if ( AvgDistance <= d_lod3 ) {
+        return clamp( mix( LOD3[1], LOD3[0], depth ), LOD3[0], LOD3[1] );
+    }
+	else if ( AvgDistance <= d_lod2 ) {
+        return clamp( mix(LOD4[1], LOD4[0], depth ), LOD4[0], LOD4[1] );
+    }
+    else
+    {
+      return clamp( mix( LOD5[1], LOD5[0], depth ), LOD5[0], LOD5[1] );
+    }
+#endif
+	//
+}
+
+void main()
+{
+
+    tcPosition[ID] = vPosition[ID];
+    if (ID == 0) {
+
+        // Calculate the distance from the camera to the three control points	
+#ifdef CAMERA
+        float EyeToVertexDistance0 = distance(camera, vPosition[0]);  // bl
+        float EyeToVertexDistance1 = distance(camera, vPosition[3]);  // br 
+        float EyeToVertexDistance2 = distance(camera, vPosition[12]); // tl 
+        float EyeToVertexDistance3 = distance(camera, vPosition[15]); // tr
+#else
+		vec3 origin = vec3( 0.0, 0.0, 0.0);
+        float EyeToVertexDistance0 = distance(origin, vPosition[0]);  // bl
+        float EyeToVertexDistance1 = distance(origin, vPosition[3]);  // br 
+        float EyeToVertexDistance2 = distance(origin, vPosition[12]); // tl 
+        float EyeToVertexDistance3 = distance(origin, vPosition[15]); // tr
+#endif
+
+#ifdef CUSTOM_TESSELLATION
+        gl_TessLevelOuter[0] = 64;
+		gl_TessLevelOuter[1] = 64;
+		gl_TessLevelOuter[2] = 64;
+		gl_TessLevelOuter[3] = 64;
+        gl_TessLevelInner[0] = gl_TessLevelOuter[3]; //gl_TessLevelOuter[2];
+		gl_TessLevelInner[1] = gl_TessLevelOuter[3];
+#else
+        // Set tessellatoin level
+		gl_TessLevelOuter[0] = GetTessLevel(EyeToVertexDistance0, EyeToVertexDistance2);
+		gl_TessLevelOuter[1] = GetTessLevel( EyeToVertexDistance1, EyeToVertexDistance0 );
+		gl_TessLevelOuter[2] = GetTessLevel( EyeToVertexDistance3, EyeToVertexDistance1 );
+		gl_TessLevelOuter[3] = GetTessLevel(EyeToVertexDistance2, EyeToVertexDistance3);
+        gl_TessLevelInner[0] = gl_TessLevelOuter[3]; //gl_TessLevelOuter[2];
+		gl_TessLevelInner[1] = gl_TessLevelOuter[3];
+#endif		
+
+    }
+    gl_out[ID].gl_Position = gl_in[ID].gl_Position;
+}

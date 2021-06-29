@@ -1,0 +1,72 @@
+
+Terrain Algorithms:
+-------------------------
+- Add my TIN meshing implementation to compare with current LOD
+- Revist Hydraulic Erosion
+- Compute Shader version of algorithms
+
+Rendering Features:
+-------------------------
+- Model loading
+---- ASSIMP for simplicity? Concerned with size and reliance on c++ features
+---- But supports glTF 2.0, OBJ, and FBX, which is convientent 'cuz I like glTF
+- Explore Depth Buffer
+---- Start the process of Global Rendering Settings (i.e. view the depth buffer)
+---- Maybe introduce a new GUI system for dedicated screenspace for the GUI
+- Stencil Buffer
+- Framebuffers
+- Shadow mapping
+- Deferred Rendering
+
+
+Pipeline Manager
+----------------------
+- Remove table for Shaders and replace with a HashTable.
+- Develop a better render pipeline.
+---- New HashTable implementation using buckets.
+---- Meshes that use a shader gets put in the bucket
+---- Meshes in a bucket have a "life expectancy".
+-------- Each Frame "visible" meshes are attempted to be placed in a bucket. If they are already there, update the life expectancy.
+-------- Three levels: New, mid, renew. At "renew" render the mesh, swap with the back, and decrement bucket size - essentially removing the mesh from the bucket. 
+-------- This is important for Frustum/Occlusion Culling later on. But not important for now.
+
+Rendering
+----------------------
+- De-couple the render pipeline as much as possible from the application. Useful for when I move to DirectX or Vulkan
+- Small API to interface with the Render Module
+---- A series of opaque structs will be passed to the Renderer for drawing.
+---- Render thread?
+-------- Ideally, the render thread queries the application asking for more things to draw
+---- App thread?
+-------- The Application thread handles any major game state changes. Physics? IO?
+
+Spatial Structures
+----------------------
+- For terrain it depends on how I end up representing terrain client side. The current LOD system stores two small slices of the terrain rather than the entire mesh. Should I maintain this model, it will be unnecessary to have a spatial structure for the terrain.
+- Static objects, an OctTree can be used. OctTree sorted spatially or not?
+- Dynamic Objects, could be stored in an OctTree but would have to be generated each frame...maybe. Could use the static OctTree with modifications. 
+
+
+GUI
+----------------------
+- Have a launch application that chooses which Engine App to Load.
+- Docking & Multiple viewports
+
+
+Deferred Rendering
+----------------------
+- Research and Implement Deferred Rendering
+
+
+Hotloading Application
+----------------------
+- Adjust the renderer to not be depending on the App layer
+- Hotload each Application to reduce build times
+- Current setup:
+---- Entry point: main.cpp
+---- Main Constructs the Application
+---- Main starts renderloop in Application
+---- Application: for each Mesh: render
+- Application dependencies on the Renderer:
+---- Shaders and Textures
+---- Drawing

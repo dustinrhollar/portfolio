@@ -6,7 +6,7 @@ Maple Raytracer is a demo based on "Ray Tracing in a Weekend" with a twist: the 
 
 The following image is rendered in 3 minutes using 100 samples per pixel and a ray depth of 50.
 
-[Raytracer Demo](https://github.com/dustinrhollar/portfolio/blob/main/Raytracer/showcase/raytracer_demo.PNG)
+![Raytracer Demo](https://github.com/dustinrhollar/portfolio/blob/main/Raytracer/showcase/raytracer_demo.PNG)
 
 The demo supports the following features:
 - DX11 for image presentation

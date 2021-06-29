@@ -12,7 +12,7 @@ Platform API seeks to create a lightweight library for cross-platform developmen
 - Keyboard Input
 - Logging
 - High performance timer
-- File Management (API and hotreloading)
+- File Management (API)
 - Thread Pool
 - Fiber Scheduler (in progress)
 

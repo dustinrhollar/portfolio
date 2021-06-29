@@ -12,14 +12,6 @@ r32  TimerSecondsElapsed(Timer *timer);
 r32  TimerMiliSecondsElapsed(Timer *timer);
 r32  TimerNanoSecondsElapsed(Timer *timer);
 
-#if 0
-void global_timer_setup();
-void timer_begin(Timer *timer);
-r32  timer_seconds_elapsed(Timer *timer);
-r32  timer_mili_seconds_elapsed(Timer *timer);
-r32  timer_nano_seconds_elapsed(Timer *timer);
-#endif
-
 //FORCE_INLINE r32 seconds_to_nano_seconds(r32 Seconds)
 FORCE_INLINE r32 SecondsToNanoSeconds(r32 Seconds)
 {

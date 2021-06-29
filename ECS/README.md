@@ -17,7 +17,7 @@ When I want to update the entity's position, I only need data for world transfor
 ## Usage
 
 A simple use case is shown below. For a more complex example, see the `example` directory.
-```
+```c
 // components must inherit from IComponent
 struct FooComponent : public IComponent
 {

@@ -11,3 +11,5 @@ This repository is a collection of projects or utilities that I have worked on o
 5. [Low Poly Terrain](https://github.com/dustinrhollar/portfolio/tree/main/LowPolyTerrainGen) is a low poly renderer for terrain and water.
 6. [Platform API](https://github.com/dustinrhollar/portfolio/tree/main/PlatformApi) is a cross platform utility for Windows and X11. 
 7. [Raytracer](https://github.com/dustinrhollar/portfolio/tree/main/Raytracer) is a raytracer based on "Raytracing in One Weekend" that uses an async job system to speed up rendering.
+
+Many of these demos are currently being rewritten into a single project. See [Maple Terrain](https://github.com/dustinrhollar/MapleTerrain) for more info. 
